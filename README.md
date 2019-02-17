@@ -1,5 +1,5 @@
 # NLPwithPytorchCN
-Natural Language Processing with Pytorch (Delip Rao et al.) 中文翻译版
+[Natural Language Processing with Pytorch (Delip Rao et al.)](https://www.oreilly.com/library/view/natural-language-processing/9781491978221/) 中文翻译版
 
 用Pytorch进行自然语言处理 
 
