@@ -1,1 +1,355 @@
 
+第六章 用于自然语言处理的序列建模
+托利党
+
+
+
+图片
+
+
+序列是项目的有序集合。传统的机器学习假设数据点是独立且相同分布的(IID)，但是在许多情况下，比如语言、语音和时间序列数据，一个数据项依赖于它前面或后面的项。这种数据也称为序列数据，在人类语言中，序列信息无处不在。例如，在一种语言中，语音可以被认为是一组叫做音素的基本单元序列
+像英语一样，一个句子中的单词不是随意的。例如，在英语中，介词“of”是介词
+很可能后面跟着“the”这篇文章，例如“the lion is the king of the jungle”。另一个例子是，在许多语言中，包括英语，动词的数目必须与
+一个句子中主语的数量。
+警报的路径
+
+
+
+&转账交易
+
+
+
+ghlights
+
+
+
+薄膜
+
+
+
+体育
+
+
+
+
+书在桌子上
+书在桌子上。
+有时，这些依赖项或约束可以是任意长的。
+我昨天得到的那本书在桌子上。
+二年级学生读的书被放在较低的架子上。
+简而言之，理解序列对于理解人类语言至关重要。在前面的章节中，我们介绍了前馈神经网络，比如多层感知器和卷积神经网络，以及向量表示的能力
+自然语言处理任务的范围可以使用这些技术来处理，正如我们将在这一章和接下来的两章中学习的那样，它们没有充分地建模序列
+马尔可夫模型、条件
+,,
+传统的NLP序列隐藏建模方法
+随机场和其他类型的概率图形模型虽然没有在本书中讨论，但仍然是相关的
+
+在深度学习中，建模序列涉及到维护隐藏的“状态信息”或隐藏状态。当序列中的每一项被遇到时——例如，当一个句子中的每一个单词被模型看到时——隐藏状态就会被更新。因此，隐藏状态(通常是一个向量)封装了迄今为止序列看到的所有内容。这个隐藏的状态向量也是
+称为序列表示，然后可以在许多序列建模任务中以无数种方式使用，这取决于我们正在解决的任务，从序列分类到预测
+序列。在这一章中，我们学习序列数据的分类，但是第7章介绍了如何使用序列模型来生成序列。
+3.
+
+
+
+
+首先介绍最基本的神经网络序列模型:递归神经网络(RNN)，然后给出一个端到端的RNN分类实例
+设置。具体地说，您将看到如何使用基于字符的RNN将姓氏分类到它们各自的国籍
+捕获语言中的正字法(子词)模式。本示例的开发方式为
+使读者能够将模型应用于其他情况，包括对数据项是单词而不是字符的文本序列进行建模。
+递归神经网络概论
+
+递归神经网络的目的是建立张量序列的模型。与前馈网络一样，RNN也是一组模型，RNN中有几个不同的成员
+但是在这一章中，我们只讨论了最基本的形式，有时也被称为Elman RNN。递归网络(包括基本的Elman形式和在hapter 7中概述的更复杂的形式)的目标是学习序列的表示
+维护一个隐藏的状态向量，它捕获序列的当前状态
+状态向量由当前输入向量和先前隐藏的状态向量计算而来。这些关系显示在igure 6-1中，其中显示了函数(左)和
+“展开”(右)的计算相关性视图。在这两个图中，输出与隐藏向量相同。这并不总是这样，但是在Elman RNN的情况下，隐藏的向量是被预测的。
+4
+
+
+
+
+5
+
+F
+ 
+
+
+图6-1 . Elman RNN函数视图(左)将递归关系作为隐向量的反馈循环显示，“展开”视图(右)将计算关系清晰地显示为
+每个时间步的隐藏向量依赖于该时间步的输入和来自的隐藏向量
+上一个时间步骤。
+让我们看一个稍微更具体的描述来理解Elman RNN中发生了什么。如igure 6-1中的展开视图所示，也称为反向传播
+时(BPTT)、当前时间步长的输入向量和隐藏状态向量
+前一个时间步长映射到当前时间步长的隐藏状态向量。在igure 6-2中更详细地显示，使用一个隐藏到隐藏的权重矩阵来映射上一个隐藏的状态向量，并使用一个输入到隐藏的权重矩阵来映射输入，从而计算出一个新的隐藏向量
+向量。
+ 
+
+
+
+图6­2。Elman RNN内部的显式计算是两个量的相加:前一个时间步长隐藏向量与一个隐藏到隐藏的权矩阵和的点积
+输入向量和输入到隐藏的权值矩阵的点积。
+关键的是，隐藏到隐藏和输入到隐藏的权重在不同的时间步骤中是共享的
+是否会进行调整，以便RNN正在学习如何合并传入的信息和
+维护一个状态表示，汇总到目前为止看到的输入。RNN没有任何方法知道它在哪个时间步上，相反，它只是学习如何从中过渡
+一个时间步进另一个时间步进，并维护一个状态表示，以最小化其损失函数。
+在每个时间步上使用相同的权重将输入转换为输出是参数共享的另一个例子。在hater4中，我们看到了CNNs如何跨空间共享参数
+参数，称为内核，用于计算输入数据中子区域的输出。卷积核在输入端进行平移，从每一个可能的位置计算输出，以学习平移不变性
+每一步都依赖于一个隐藏的状态向量来捕获序列的状态。通过这种方式，RNNs的目标是通过能够计算任何输出来学习序列不变性
+给定隐藏的状态向量和输入向量。您可以考虑RNN跨时间共享参数和CNN跨空间共享参数。
+因为单词和句子可以有不同的长度，RNN或任何序列模型
+应配备处理可变长度序列。一种可能的技术是限制
+序列到一个固定长度的人工。在本书中，我们使用了另一种技术，称为掩蔽，通过利用
+序列。简而言之，屏蔽允许数据在某些输入不应计入梯度或最终输出时发出信号。PyTorch提供了处理称为packedsequence的可变长度序列的原语，这些序列从这些不太密集的序列中创建密集的张量。示例:使用字符RNN对姓氏国籍进行分类
+this.6的例子
+实现Elman RNN
+
+为了探究RNN的细节，让我们逐步了解Elman RNN的一个简单实现。PyTorch提供了许多有用的类和帮助函数来构建RNN
+类实现了Elman RNN.而不是直接使用这个类
+RNNCell是对RNN的单个时间步长的抽象，并以此为基础构造RNN。我们这样做的目的是显式地向您展示RNN计算
+xample 6-1, ElmanRNN，使用RNNCell创建input-to-hidden和hidden-to -
+前面描述的隐藏权重矩阵。对RNNCell()的每次调用都接受一个输入矩阵
+向量和一个隐藏向量的矩阵。它返回一步得到的隐藏向量的矩阵。
+示例6-1 .使用PyTorch的RNNCell实现Elman RNN
+
+小姑娘ElmanRNN(nn.Module):
+一个使用RNNCell构建的Elman RNN
+def __init__(自我、input_size hidden_size batch_first = False):“”
+参数:
+input_size (int):输入向量的大小
+hidden_size (int):隐藏的状态向量的大小
+batch_first (bool):第0个维度是否批”“”
+超级(ElmanRNN自我). __init__ ()
+self.rnn_cell = nn.RNNCell (input_size hidden_size)
+自我。batch_first = batch_first self.hidden_size = hidden_size
+batch_size def _initialize_hidden(自我):
+返回torch.zeros ((batch_size self.hidden_size) def向前(自我、x_in initial_hidden = None):
+””“ElmanRNN的传球前进
+参数:
+张量x_in (torch.Tensor):一个输入数据。
+如果self.batch_first: x_in。其他形状= (batch_size seq_size、铁:x_in.shape = (seq_size、batch_size feat_size)
+initial_hidden (torch.Tensor):最初的隐藏状态的回报:
+讨论(torch.Tensor):输出每次RNN的ste如果self.batch_first:
+hiddens.shape = (batch_size seq_size hidden_size)
+其他:hiddens.shape = (seq_size、batch_size hidden_size)”“”
+如果self.batch_first:
+batch_size、seq_size feat_size = x_in.size () x_in = x_in.permute (1 0 2)
+其他:
+batch_size seq_size, feat_size = x_in.size ()
+讨论= []
+如果initial_hidden为None:
+initial_hidden = self._initialize_hidden (batch_size) initial_hidden = initial_hidden.to (x_in.device)
+hidden_t = initial_hidden
+对于范围内的t (seq_size):
+hidden_t = self.rnn_cell(x_in[t],hidden_t)hiddens.append(hidden_t)
+            
+如果self.batch_first讨论= torch.stack(讨论):
+讨论= hiddens.permute(1 0 2)返回讨论
+在RNN中除了控制输入和隐藏的size超参数外，还有a
+布尔参数，用于指定维度是否在第0维度上。这个标志在所有的PyTorch RNNs实现中都有，当设置为True时，RNN交换
+输入张量的第0维和第1维。
+在ElmanRNN类中，forward()方法在输入张量上循环，以计算每个时间步的隐藏状态向量。注意，有一个选项可指定初始隐藏状态，但如果未提供该选项，则使用所有0的默认隐藏状态向量
+ElmanRNN类在输入向量的长度上循环，它计算一个新的隐藏状态。这些隐藏状态被聚合并最终堆积起来。在他们回来之前
+再次检查batch_first标志。如果为真，则对输出隐藏向量进行排列，使批处理再次位于第0维上。
+7
+
+
+
+
+这个类的输出是一个三维的张量——批处理维度和时间步长上的每个数据点都有一个隐藏的状态向量
+根据手头的任务，有几种不同的方法
+将每个时间步骤分类为一些离散的选项集。该方法将调整RNN权值，跟踪每一步预测的相关信息
+可以使用最终向量对整个序列进行分类。这意味着RNN的权值
+将调整以跟踪对最终分类重要的信息。在本章中，我们只看到分类设置，但在接下来的两章中，我们将逐步研究
+预测更密切。
+示例:使用字符RNN对姓氏国籍进行分类
+
+现在我们已经概述了RNNs的基本属性，并逐步介绍了
+ElmanRNN的实现，让我们将其应用于一个任务。我们将考虑的任务是来自于hapter 4的姓氏分类任务，其中字符序列(姓氏)是
+按国籍分类的。
+SurnameDataset类
+
+本例中的数据集是姓氏数据集，之前在hapter 4中介绍过
+点由姓氏和相应的国籍表示。我们将避免重复数据集的细节，但是您应该参考姓氏数据集“以获得更新”。
+
+" E a y
+在本例中，例如:使用CNN对姓氏进行分类，我们将每个姓氏视为字符序列
+它返回向量化的姓和表示其姓的整数
+国籍。此外，返回的是序列的长度，它在下游计算中用于知道序列中最终向量的位置
+熟悉的步骤实现数据集、矢量化器和词汇表的顺序——在实际的培训之前。
+例6-2 .实现SurnameDataset类
+类SurnameDataset(集):@classmethod
+surname_csv def load_dataset_and_make_vectorizer (cls):
+”““加载数据集,使一个新的vectorizer从零开始
+参数:
+surname_csv (str):数据集返回的位置:
+的一个实例SurnameDataset”“”
+surname_df = pd.read_csv (surname_csv)
+train_surname_df = surname_df (surname_df.split = =‘火车’)
+返回cls(surname_df, SurnameVectorizer.from_dataframe(train_surn def __getitem__(self, index)):
+”““PyTorch数据集的主要入口点的方法
+参数:
+指数(int):索引数据点的回报:
+字典的数据点的:功能(x_data)
+标签(y_target)
+长(x_length)”“”
+行= self._target_df。iloc(指数)
+surname_vector, vec_length = \
+self._vectorizer.vectorize(row.surname self._max_seq_length)
+nationality_index = \
+self._vectorizer.nationality_vocab.lookup_token(行。nationalit返回{ x_data:surname_vector,
+“y_target”:nationality_index,x_length:vec_length }
+向量化数据结构
+向量化管道的第一阶段是将姓氏中的每个字符标记映射到a
+独特的整数。为了实现这一点，我们使用了SequenceVocabulary数据结构，这是我们在示例中首先介绍和描述的:使用预先训练的嵌入或文档分类进行传输学习”
+整数的名称，但也使用了四个特殊用途的令牌:UNK令牌、掩码令牌、序列开始令牌和序列结束令牌
+对语言数据至关重要:在
+输入和掩码令牌允许处理可变长度的输入。后两个标记为模型提供了句子边界特征，并在序列前加和后加，
+分别。我们建议您参考词汇表、矢量化器和数据阅读器”以获得对序列词汇表的更详细描述。
+整个向量化过程由SurnameVectorizer管理，它使用序列evocabulary管理姓氏和中的字符之间的映射
+整数。xample 6-3展示了它的实现，这看起来应该非常熟悉
+在前一章中，我们研究了如何将新闻文章的标题分类到特定类别，而向量化管道几乎是相同的。
+例6-3 .姓氏矢量化
+小姑娘SurnameVectorizer(对象):
+协调词汇表并将其放入def vectorize(self，姓氏，vector_length= -1)的矢量化器:
+”“”
+参数:
+标题(str):字符串
+vector_length (int):一个理由迫使印度的长度”“”
+指数= [self.char_vocab.begin_seq_index]
+indices.extend (self.char_vocab.lookup_token(令牌)令牌的姓)
+indices.append (self.char_vocab.end_seq_index)如果vector_length < 0:
+vector_length = len(指数)
+out_vector = np.zeros(vector_length dtype = np.int64)out_vector[:len(指数)]=指数
+out_vector len(指标):= self.char_vocab。mask_index
+返回out_vector, len @classmethod(指数)
+surname_df def from_dataframe (cls):
+”“”从数据集dataframe vectorizer实例化
+参数:
+
+T c 8
+surname_df (pandas.DataFrame):姓氏数据集的回报:
+的一个实例SurnameVectorizer”“”
+char_vocab = SequenceVocabulary () nationality_vocab =词汇表()
+指数,行surname_df.iterrows():为char row.surname:
+char_vocab.add_token(字符)
+nationality_vocab.add_token (row.nationality)返回cls (char_vocab nationality_vocab)
+他SurnameClassifier模型
+
+SurnameClassifier模型由嵌入层ElmanRNN和组成
+一个线性层。我们假设模型的输入是由SequenceVocabulary映射到整数后的一组整数表示的令牌
+使用嵌入层嵌入整数。然后，利用RNN，计算序列表示向量，这些向量表示
+因为目标是对每个姓进行分类，所以向量对应于最终的姓
+提取每个姓氏中的字符位置。考虑这个向量的一种方法是最终的向量是传递整个序列输入的结果，因此它是一个总结
+这些汇总向量通过线性层传递到
+计算一个预测向量。预测向量用于训练损失，或者我们可以应用softmax函数来创建姓氏的概率分布。
+模型的参数是嵌入的大小，嵌入的数量(例如，，词汇表大小)，类的数量，以及RNN的隐藏状态大小
+参数——嵌入的数量和类的数量——由数据决定。剩下的超参数是嵌入的大小和隐藏状态的大小。虽然它们可以有任何值，但通常最好从一些很小的值开始
+快速训练以验证模型是否有效。
+例6-4 .使用Elman RNN实现SurnameClassifier模型
+小姑娘SurnameClassifier (nn.Module):
+”“”一个RNN提取特征和MLP分类”“
+def __init__(自我、embedding_size num_embeddings、num_classes rnn_hidden_size, batch_first = True, padding_idx = 0):“”
+参数:
+embedding_size(int):字符嵌入的大小
+
+num_embeddings(int):嵌入的字符数
+num_classes(int):预测矢量的大小注意:民族的数量
+rnn_hidden_size(int):RNN的隐藏状态的大小
+batch_first(bool):通知张量的输入是否有批处理或序列在第0个维度
+padding_idx(int):张量的指数填充;看到torch.nn.Embedding
+”“”
+超级(SurnameClassifier自我). __init__()
+self.emb = nn。嵌入(num_embeddings = num_embeddings embedding_dim = embedding_size,
+padding_idx = padding_idx)self.rnn = ElmanRNN(input_size = embedding_size,
+hidden_size = rnn_hidden_size batch_first = batch_first)
+self.fc1 = nn。线性(in_features = rnn_hidden_size out_features = rnn_hidden_size)self.fc2 = nn。线性(in_features = rnn_hidden_size out_features = num_classes)
+def向前(自我、x_in x_lengths = None,apply_softmax = False):“”“分类器的前进传球
+        
+参数:
+张量x_in (torch.Tensor):一个输入数据
+input_dim x_in.shape应该(批处理)
+x_lengths(torch.Tensor):每个序列的长度在b用于查找每个序列的最后一个向量
+apply_softmax(bool):将softmax激活的标志
+应该是假的,如果使用十字架­熵损失的回报:
+(torch.Tensor);' out.shape =(批、num_classes)“”“”
+x_embedded = self.emb(x_in)
+y_out = self.rnn(x_embedded)如果x_lengths不是没有:
+y_out = column_gather(y_out x_lengths)其他:
+y_out = y_out[:， -1，:]
+y_out = F.dropout(y_out, 0.5)
+y_out = F.relu(self.fc1(y_out))y_out = F.dropout(y_out,0.5)
+如果apply_softmax y_out = self.fc2(y_out):
+y_out = F.softmax(y_out昏暗= 1)y_out返回
+您将注意到，forward()函数需要序列的长度
+length用于检索从RNN返回的张量中每个序列的最终向量，其中包含一个名为column_gather()的函数，如xample 6-5所示
+迭代批处理行索引并检索位于序列相应长度所指示位置的向量。
+示例6-5 .使用column_gather()检索每个序列中的最终输出向量
+def column_gather(y_out x_lengths):
+”“”得到一个特定的向量从每一批数据点在“y_out”。参数:
+y_out(torch.FloatTensor torch.cuda.FloatTensor)形状:(批、序列特性)
+x_lengths(torch.LongTensor torch.cuda.LongTensor)形状:(批)
+返回:
+y_out(torch.FloatTensor torch.cuda.FloatTensor)形状:(批处理,特性)
+”“”
+.cpu .detach x_lengths = x_lengths.long()()().numpy()­1 =[]
+对于batch_index, enumerate(x_length)中的column_index: out.append(y_out[batch_index, column_index])
+返回torch.stack(出)
+训练程序和结果
+
+训练程序遵循标准公式。对于单批数据，应用模型
+利用横熵损失()函数和地面真值来计算损失值。使用损失值和优化器，计算梯度并使用这些梯度更新模型的权重。对训练数据中的每批重复此操作。对验证数据进行类似的处理，但是将模型设置为eval模式，以防止反向传播。相反，验证数据只用于对模型如何执行给出一个不那么有偏见的感觉
+参见补充资料。我们鼓励您使用超参数来获得a
+了解什么影响性能以及影响程度，并将结果制成表格。我们还将为这个任务编写一个合适的基线模型作为您要完成的练习。在SurnameClassifier模型中实现的模型是通用的，不局限于字符。模型中的嵌入层可以映射任意离散项在离散项序列中的映射
+例如，一个句子是一个单词序列。我们鼓励您在其他序列分类任务中使用xample 6-6中的代码，比如句子分类。
+9
+
+C
+示例6-6 .基于rnnsurnameclassifier的参数
+args =名称空间(
+数据和路径信息
+数据/姓氏/ surnames_with_splits surname_csv = "。csv”,vectorizer_file = " vectorizer.json”,
+model_state_file = " model.pth ",
+save_dir="model_storage/ch6/surname_classification"， # Model hyperparameter
+char_embedding_size = 100, rnn_hidden_size = 64,
+训练超参数num_epochs=100，
+learning_rate = 1 e­3, batch_size = 64,
+种子= 1337,
+early_stopping_criteria = 5,
+为空格省略了运行时选项)
+
+
+
+
+总结
+
+在这一章中，我们介绍了使用递归神经网络对序列数据建模，并研究了最简单的一种递归网络，即Elman RNN
+确定序列建模的目标是学习序列的一种表示(即向量)，这种学习的表示可以根据任务以不同的方式使用。我们考虑了一个示例任务，该任务涉及将这种隐藏状态表示分类到许多类中的一个
+子词级的信息。
+参考文献
+
+1.《概率图形模型:原理》(2009)
+技术，麻省理工学院出版社。
+CNNs是一个例外。正如我们在hapter 9中提到的，CNNs是有效的
+用于捕获序列信息。
+详见Koller和Friedman(2009)。
+在第七章中，我们将看到序列模型的变体，它们会“忘记”不相关的信息
+从过去。
+回忆一下哈普特1，所有的东西都可以用张量来表示，所以这里，一个RNN是
+
+m C”
+在离散时间步骤中对项目序列进行编码。每一项都可以表示为一个张量，在本章剩下的部分中，我们将“向量”替换为“张量”
+有时，维度应该从上下文来理解。
+在本章中，我们使用“RNN”来指代Elman RNN
+本章可以使用其他递归神经网络类型建模(即hapter 8的主题)，但为了简单起见，我们坚持使用Elman RNN
+贯穿本章的区别。
+屏蔽和分组序列是经常被掩盖的“实现细节”
+在关于深度学习的论文和书籍中
+对RNNs的理解，对这些概念的深入了解，正如我们在本章中所发展的，对实践者来说是必不可少的。
+有关PyTorch堆积运算的讨论，请参见张量运算”。
+在这个例子中，类的数量很少，在很多情况下，在NLP中，类的数量
+输出类的顺序可以是数千或数十万
+在某些情况下，可能需要使用分层softmax而不是普通的softmax。
+作为热身，考虑一个带有一袋unigram字符的MLP作为输入，然后修改它
+将一袋字符二图作为输入。对于这个问题
+基线模型可能比这个简单的RNN模型执行得更好。这是有指导意义的:您通过告诉基线模型中存在信号来进行特征工程
+字符二图。计算单位图和二图中的参数个数
+输入用例，并与本章的RNN模型进行比较。它的参数是多是少，为什么?最后，对于这个任务，您能想到比MLP简单得多的基线模型吗?
