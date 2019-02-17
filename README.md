@@ -39,3 +39,7 @@ Natural Language Processing with Pytorch (Delip Rao et al.) 中文翻译版
 CS224N 的Pytorch 实现 https://github.com/znsoftm/DeepNLP-models-Pytorch 
 
 CS224N 斯坦福深度自然语言处理课 
+
+**其它参考资源**
+
+[Natural Language Processing (NLP) with PyTorch](http://dl4nlp.info/en/latest/)
