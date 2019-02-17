@@ -16,9 +16,9 @@ Natural Language Processing with Pytorch (Delip Rao et al.) 中文翻译版
 
 第五章： https://github.com/znsoftm/NLPwithPytorchCN/blob/master/%E7%AC%AC%E4%BA%94%E7%AB%A0.md
 
-第六章： https://github.com/znsoftm/NLPwithPytorchCN/blob/master/%E7%AC%AC%E5%85%AD%E7%AB%A0
+第六章： https://github.com/znsoftm/NLPwithPytorchCN/blob/master/%E7%AC%AC%E5%85%AD%E7%AB%A0.md
 
-第七章：https://github.com/znsoftm/NLPwithPytorchCN/blob/master/%E7%AC%AC%E4%B8%83%E7%AB%A0
+第七章：https://github.com/znsoftm/NLPwithPytorchCN/blob/master/%E7%AC%AC%E4%B8%83%E7%AB%A0.md
 
 第八章 https://yifdu.github.io/2018/12/28/Natural-Language-Processing-with-PyTorch（八）
 
