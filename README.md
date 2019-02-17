@@ -32,7 +32,7 @@ Natural Language Processing with Pytorch (Delip Rao et al.) 中文翻译版
 新书《Pytorch_自然语言处理上手之道（理论与实践）》 计划编写中，将包括数学基础，自然语言处理理论以及上手实践。会包括到截稿期之前的最新前沿内容，敬请期待。
 
 
-警告： 本翻译不得用于图书出版使用，如果出版社已经获得版权，请联系本人协商使用。
+**警告： 本翻译不得用于图书出版使用，如果出版社已经获得版权，请联系本人协商使用。**
 
 CS224N 的Pytorch 实现 https://github.com/znsoftm/DeepNLP-models-Pytorch 
 
