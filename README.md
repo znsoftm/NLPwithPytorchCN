@@ -10,7 +10,7 @@ Natural Language Processing with Pytorch (Delip Rao et al.) 中文翻译版
 
 第九章 https://yifdu.github.io/2018/12/28/Natural-Language-Processing-with-PyTorch（九）
 
-第 五、六、七由本人原创翻译。
+第 五、六、七由本人原创翻译。为了减少工作量，本人的翻译是基于有道云翻译平台的结果进行整理和校对。
 
 本翻译并没有得到来自原始作者的授权，仅用于学习理解。 任何商业引用均需得到原作者授权及各翻译者授权许可。
 
