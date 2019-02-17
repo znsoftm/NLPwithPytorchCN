@@ -14,7 +14,7 @@ Natural Language Processing with Pytorch (Delip Rao et al.) 中文翻译版
 
 第四章：https://www.jianshu.com/p/ceb6956bcec0
 
-第五章：
+第五章： https://github.com/znsoftm/NLPwithPytorchCN/blob/master/%E7%AC%AC%E4%BA%94%E7%AB%A0
 
 第六章：
 
